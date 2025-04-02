@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  TaskManagerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.8
+      MemorySize: 128
+      Timeout: 10
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Environment:
+        Variables:
+          MONGO_URI: "mongodb+srv://elizabthpazp:aYtuDczsMJSGwLfW@cluster0.xhdresy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+      Events:
+        ApiGateway:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: ANY
