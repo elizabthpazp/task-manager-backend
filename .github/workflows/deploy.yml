@@ -28,5 +28,5 @@ jobs:
 
     - name: Deploy to Lambda
       run: |
-        zip -r function.zip .
+        zip -r function.zip . -x "*.git*" -x "*.github*"
         aws lambda update-function-code --function-name task-manager --zip-file fileb://function.zip
