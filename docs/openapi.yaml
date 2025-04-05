@@ -8,7 +8,7 @@ servers:
     description: Production server
 
 paths:
-  /tasks:
+  /:
     get:
       summary: Get all tasks
       description: Fetches all tasks stored in the MongoDB database.
@@ -58,7 +58,7 @@ paths:
         '500':
           description: Internal Server Error
 
-  /tasks/delete:
+  /delete:
     post:
       summary: Delete a task
       description: Deletes a task by its ID (passed in the request body).
