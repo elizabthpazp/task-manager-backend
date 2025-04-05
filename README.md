@@ -1,6 +1,3 @@
-Aquí tienes la traducción al inglés del `README.md`:
-
-```markdown
 # Task Manager Backend
 
 This is the backend of the Task Manager system using **AWS Lambda**, **API Gateway**, and **MongoDB** as the NoSQL database. The project provides a RESTful API to manage tasks, allowing CRUD operations (Create, Read, Update, Delete).
@@ -158,6 +155,3 @@ You can deploy the backend to AWS Lambda by following these steps:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
-
-This English version mirrors the original Spanish version, providing installation, configuration, and usage instructions in English.
