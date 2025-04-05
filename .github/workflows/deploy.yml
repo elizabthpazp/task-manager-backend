@@ -26,7 +26,17 @@ jobs:
         source venv/bin/activate
         pip install -r requirements.txt
 
-    - name: Deploy to Lambda
+    - name: Package Lambda function
       run: |
-        zip -r function.zip . -x "*.git*" -x "*.github*"
-        aws lambda update-function-code --function-name task-manager --zip-file fileb://function.zip
+          zip -r function.zip .  
+
+    - name: Upload to S3
+      run: |
+          aws s3 cp function.zip s3://amplify-taskmanager-dev-e5ae4-deployment/task-manager-backend.zip
+ 
+    - name: Update Lambda function
+      run: |
+          aws lambda update-function-code \
+            --function-name task-manager \
+            --s3-bucket amplify-taskmanager-dev-e5ae4-deployment \
+            --s3-key function.zip
