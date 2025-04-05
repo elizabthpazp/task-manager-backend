@@ -41,7 +41,38 @@ def get_tasks(headers):
         "headers": headers
     }
 
-def add_task(task, headers):
+def add_task(task, headers): 
+    if "title" not in task or not task["title"].strip():
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Title is required and cannot be empty."}),
+            "headers": headers
+        }
+
+    if "description" not in task or not task["description"].strip():
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Description is required and cannot be empty."}),
+            "headers": headers
+        }
+ 
+    if len(task["title"]) > 100:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Title cannot exceed 100 characters."}),
+            "headers": headers
+        }
+ 
+    if "due_date" in task:
+        try: 
+            datetime.strptime(task["due_date"], "%Y-%m-%d")
+        except ValueError:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"error": "Due date must be in YYYY-MM-DD format."}),
+                "headers": headers
+            }
+ 
     result = tasks_collection.insert_one(task)
     return {
         "statusCode": 201,
@@ -51,14 +82,37 @@ def add_task(task, headers):
 
 def update_task(task, headers):
     task_id = task.get("_id")
+     
     if not task_id:
         return {
             "statusCode": 400,
-            "body": json.dumps({"error": "Task ID is required"}),
+            "body": json.dumps({"error": "Task ID is required for update."}),
             "headers": headers
         }
 
-    task["_id"] = ObjectId(task["_id"])
+    try: 
+        task["_id"] = ObjectId(task["_id"])
+    except Exception as e:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Invalid task ID."}),
+            "headers": headers
+        }
+ 
+    if "title" in task and not task["title"].strip():
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Title cannot be empty."}),
+            "headers": headers
+        }
+
+    if "description" in task and not task["description"].strip():
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Description cannot be empty."}),
+            "headers": headers
+        }
+
     result = tasks_collection.update_one({"_id": task["_id"]}, {"$set": task})
 
     if result.matched_count > 0:
@@ -76,14 +130,23 @@ def update_task(task, headers):
 
 def delete_task(task, headers):
     task_id = task.get("_id")
+ 
     if not task_id:
         return {
             "statusCode": 400,
-            "body": json.dumps({"error": "Task ID is required"}),
+            "body": json.dumps({"error": "Task ID is required to delete."}),
             "headers": headers
         }
 
-    task["_id"] = ObjectId(task["_id"])
+    try: 
+        task["_id"] = ObjectId(task["_id"])
+    except Exception as e:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Invalid task ID."}),
+            "headers": headers
+        }
+ 
     result = tasks_collection.delete_one({"_id": task["_id"]})
 
     if result.deleted_count > 0:
