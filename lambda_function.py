@@ -14,6 +14,16 @@ def lambda_handler(event, context):
         return update_task(json.loads(event["body"]))
     elif http_method == "DELETE":
         return delete_task(json.loads(event["body"]))
+    elif http_method == "OPTIONS":
+        return {
+            "statusCode": 200,
+            "body": json.dumps({}),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization"
+            }
+        }
     else:
         return {
             "statusCode": 400,
