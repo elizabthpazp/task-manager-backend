@@ -1,165 +1,163 @@
+Aquí tienes la traducción al inglés del `README.md`:
+
+```markdown
 # Task Manager Backend
 
-Este es el backend del sistema de gestión de tareas (Task Manager) utilizando **AWS Lambda**, **API Gateway** y **MongoDB** como base de datos NoSQL. El proyecto proporciona una API RESTful para gestionar tareas, permitiendo realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar).
+This is the backend of the Task Manager system using **AWS Lambda**, **API Gateway**, and **MongoDB** as the NoSQL database. The project provides a RESTful API to manage tasks, allowing CRUD operations (Create, Read, Update, Delete).
 
-## Características
+## Features
 
-- **AWS Lambda**: Funciones serverless para manejar la lógica de negocio.
-- **API Gateway**: Exposición de las funciones Lambda como endpoints RESTful.
-- **MongoDB**: Base de datos NoSQL para almacenar las tareas.
-- **CORS**: Configuración habilitada para que el frontend pueda acceder a la API desde cualquier dominio.
-- **Autenticación**: No se requiere autenticación en esta versión básica, pero se puede agregar fácilmente.
+- **AWS Lambda**: Serverless functions to handle business logic.
+- **API Gateway**: Exposing Lambda functions as RESTful endpoints.
+- **MongoDB**: NoSQL database to store tasks.
+- **CORS**: Configuration enabled to allow the frontend to access the API from any domain.
+- **Authentication**: No authentication required in this basic version, but can be easily added.
 
-## Tecnologías
+## Technologies
 
 - Python 3.x
 - AWS Lambda
 - AWS API Gateway
 - MongoDB
-- `pymongo` para la conexión con MongoDB
-- `boto3` para interactuar con AWS desde Python
+- `pymongo` for MongoDB connection
+- `boto3` for interacting with AWS from Python
 
-## Requisitos
+## Requirements
 
-- Tener una cuenta de AWS.
-- MongoDB Atlas o un clúster de MongoDB configurado.
-- Clave de acceso de AWS configurada.
+- An AWS account.
+- MongoDB Atlas or a configured MongoDB cluster.
+- AWS access key configured.
 
-## Instalación
+## Installation
 
-1. **Clonar el repositorio**:
+1. **Clone the repository**:
    ```bash
-   git clone https://github.com/tuusuario/task-manager-backend.git
+   git clone https://github.com/yourusername/task-manager-backend.git
    cd task-manager-backend
    ```
 
-2. **Crear un entorno virtual**:
+2. **Create a virtual environment**:
    ```bash
    python -m venv venv
-   source venv/bin/activate  # En Linux/Mac
-   venv\Scripts\activate     # En Windows
+   source venv/bin/activate  # On Linux/Mac
+   venv\Scripts\activate     # On Windows
    ```
 
-3. **Instalar dependencias**:
+3. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Configurar MongoDB**:
-   - Si estás usando MongoDB Atlas, obtén la URI de conexión desde tu clúster de MongoDB.
-   - Configura la URI de MongoDB en un archivo `.env` o en las variables de entorno:
+4. **Configure MongoDB**:
+   - If you're using MongoDB Atlas, get the connection URI from your MongoDB cluster.
+   - Configure the MongoDB URI in a `.env` file or in the environment variables:
      ```bash
-     MONGO_URI="mongodb+srv://usuario:contraseña@cluster.mongodb.net/db?retryWrites=true&w=majority"
+     MONGO_URI="mongodb+srv://username:password@cluster.mongodb.net/db?retryWrites=true&w=majority"
      ```
 
-5. **Subir el código a AWS Lambda**:
-   Si estás usando un CI/CD como GitHub Actions, el código se subirá automáticamente. Si lo haces manualmente:
+5. **Upload the code to AWS Lambda**:
+   If you're using CI/CD like GitHub Actions, the code will be uploaded automatically. If you're doing it manually:
 
-   - Empaqueta tu código en un archivo ZIP:
+   - Package your code in a ZIP file:
      ```bash
      zip -r function.zip .
      ```
    
-   - Sube el archivo `function.zip` a un bucket de S3 en AWS y luego actualiza la función Lambda.
+   - Upload the `function.zip` file to an S3 bucket in AWS and then update the Lambda function.
 
-6. **Configurar AWS API Gateway**:
-   - En el **API Gateway**, crea un nuevo API RESTful.
-   - Crea un recurso y asigna los métodos HTTP (GET, POST, PUT, DELETE).
-   - Asocia cada método a su respectiva función Lambda.
+6. **Configure AWS API Gateway**:
+   - In **API Gateway**, create a new RESTful API.
+   - Create a resource and assign HTTP methods (GET, POST, PUT, DELETE).
+   - Associate each method with its corresponding Lambda function.
 
 ## Endpoints
 
 ### `GET /tasks`
 
-Obtiene todas las tareas almacenadas en MongoDB.
+Fetches all tasks stored in MongoDB.
 
-**Respuesta**:
-- `200 OK`: Lista de tareas.
-- `500 Internal Server Error`: Si ocurre un error al obtener las tareas.
+**Response**:
+- `200 OK`: List of tasks.
+- `500 Internal Server Error`: If an error occurs while fetching tasks.
 
 ### `POST /tasks`
 
-Crea una nueva tarea en MongoDB.
+Creates a new task in MongoDB.
 
-**Cuerpo de la solicitud**:
+**Request body**:
 ```json
 {
-  "title": "Mi nueva tarea",
-  "description": "Descripción de la tarea",
-  "status": "Pendiente"
+  "title": "My new task",
+  "description": "Task description",
+  "status": "Pending"
 }
 ```
 
-**Respuesta**:
-- `201 Created`: Tarea agregada exitosamente.
-- `400 Bad Request`: Si la solicitud es inválida.
-- `500 Internal Server Error`: Si ocurre un error al agregar la tarea.
+**Response**:
+- `201 Created`: Task added successfully.
+- `400 Bad Request`: If the request is invalid.
+- `500 Internal Server Error`: If an error occurs while adding the task.
 
 ### `PUT /tasks`
 
-Actualiza el estado de una tarea existente.
+Updates the status of an existing task.
 
-**Cuerpo de la solicitud**:
+**Request body**:
 ```json
 {
-  "_id": "ID_de_la_tarea",
-  "status": "Completada"
+  "_id": "Task_ID",
+  "status": "Completed"
 }
 ```
 
-**Respuesta**:
-- `200 OK`: Tarea actualizada exitosamente.
-- `404 Not Found`: Si la tarea no existe.
-- `500 Internal Server Error`: Si ocurre un error al actualizar la tarea.
+**Response**:
+- `200 OK`: Task updated successfully.
+- `404 Not Found`: If the task does not exist.
+- `500 Internal Server Error`: If an error occurs while updating the task.
 
 ### `DELETE /tasks`
 
-Elimina una tarea por su ID.
+Deletes a task by its ID.
 
-**Cuerpo de la solicitud**:
+**Request body**:
 ```json
 {
-  "_id": "ID_de_la_tarea"
+  "_id": "Task_ID"
 }
 ```
 
-**Respuesta**:
-- `200 OK`: Tarea eliminada exitosamente.
-- `404 Not Found`: Si la tarea no existe.
-- `500 Internal Server Error`: Si ocurre un error al eliminar la tarea.
+**Response**:
+- `200 OK`: Task deleted successfully.
+- `404 Not Found`: If the task does not exist.
+- `500 Internal Server Error`: If an error occurs while deleting the task.
 
 ## Tests
 
-Para realizar pruebas unitarias, puedes ejecutar:
+To run unit tests, you can execute:
 
 ```bash
 pytest tests/
 ```
 
-## Despliegue
+## Deployment
 
-Puedes desplegar el backend en AWS Lambda siguiendo estos pasos:
+You can deploy the backend to AWS Lambda by following these steps:
 
-1. Empaquetar el código:
+1. Package the code:
    ```bash
    zip -r function.zip .
    ```
 
-2. Subir el archivo `function.zip` a un bucket de S3.
+2. Upload the `function.zip` file to an S3 bucket.
 
-3. Actualizar la función Lambda en AWS:
+3. Update the Lambda function in AWS:
    ```bash
    aws lambda update-function-code --function-name task-manager --s3-bucket <bucket-name> --s3-key function.zip
    ```
 
-## Contribuir
+## License
 
-1. Haz un fork del repositorio.
-2. Crea una rama para tu cambio (`git checkout -b feature/nueva-funcionalidad`).
-3. Realiza los cambios y haz commit (`git commit -am 'Agrega nueva funcionalidad'`).
-4. Empuja a tu rama (`git push origin feature/nueva-funcionalidad`).
-5. Crea un Pull Request.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+```
 
-## Licencia
-
-Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
+This English version mirrors the original Spanish version, providing installation, configuration, and usage instructions in English.
