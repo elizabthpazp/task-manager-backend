@@ -142,7 +142,7 @@ You can deploy the backend to AWS Lambda by following these steps:
 
 1. Package the code:
    ```bash
-   zip -r function.zip .
+   zip -r function.zip . 
    ```
 
 2. Upload the `function.zip` file to an S3 bucket.
