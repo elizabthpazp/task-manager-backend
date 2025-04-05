@@ -1,3 +1,30 @@
+# Task Manager Backend
+
+Este es el backend del sistema de gestión de tareas (Task Manager) utilizando **AWS Lambda**, **API Gateway** y **MongoDB** como base de datos NoSQL. El proyecto proporciona una API RESTful para gestionar tareas, permitiendo realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar).
+
+## Características
+
+- **AWS Lambda**: Funciones serverless para manejar la lógica de negocio.
+- **API Gateway**: Exposición de las funciones Lambda como endpoints RESTful.
+- **MongoDB**: Base de datos NoSQL para almacenar las tareas.
+- **CORS**: Configuración habilitada para que el frontend pueda acceder a la API desde cualquier dominio.
+- **Autenticación**: No se requiere autenticación en esta versión básica, pero se puede agregar fácilmente.
+
+## Tecnologías
+
+- Python 3.x
+- AWS Lambda
+- AWS API Gateway
+- MongoDB
+- `pymongo` para la conexión con MongoDB
+- `boto3` para interactuar con AWS desde Python
+
+## Requisitos
+
+- Tener una cuenta de AWS.
+- MongoDB Atlas o un clúster de MongoDB configurado.
+- Clave de acceso de AWS configurada.
+
 ## Instalación
 
 1. **Clonar el repositorio**:
