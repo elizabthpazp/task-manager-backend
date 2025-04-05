@@ -129,7 +129,7 @@ def update_task(task, headers):
         }
 
 def delete_task(task, headers):
-    task_id = task.get("_id")
+    task_id = task.get("id")
  
     if not task_id:
         return {
@@ -139,7 +139,7 @@ def delete_task(task, headers):
         }
 
     try: 
-        task["_id"] = ObjectId(task["_id"])
+        task["id"] = task["id"]
     except Exception as e:
         return {
             "statusCode": 400,
@@ -147,7 +147,7 @@ def delete_task(task, headers):
             "headers": headers
         }
  
-    result = tasks_collection.delete_one({"_id": task["_id"]})
+    result = tasks_collection.delete_one({"id": task["id"]})
 
     if result.deleted_count > 0:
         return {
