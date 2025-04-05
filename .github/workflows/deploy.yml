@@ -1,0 +1,32 @@
+name: Deploy to AWS Lambda
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up AWS CLI
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: AKIAZJGZE3J2IDBOGMGM
+        aws-secret-access-key: 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
+        region: us-east-2
+
+    - name: Install dependencies
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+
+    - name: Deploy to Lambda
+      run: |
+        zip -r function.zip .
+        aws lambda update-function-code --function-name task-manager --zip-file fileb://function.zip
