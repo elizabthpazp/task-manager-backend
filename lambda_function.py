@@ -37,8 +37,7 @@ def get_tasks():
         }
     }
 
-def add_task(task):
-    task["createdAt"] = datetime.utcnow()
+def add_task(task): 
     result = tasks_collection.insert_one(task)
     return {
         "statusCode": 201,
