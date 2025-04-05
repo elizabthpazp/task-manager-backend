@@ -28,15 +28,15 @@ jobs:
 
     - name: Package Lambda function
       run: |
-          zip -r function.zip .  
+          zip -r task-manager-backend.zip .  
 
     - name: Upload to S3
       run: |
-          aws s3 cp function.zip s3://amplify-taskmanager-dev-e5ae4-deployment/task-manager-backend.zip
+          aws s3 cp task-manager-backend.zip s3://amplify-taskmanager-dev-e5ae4-deployment/task-manager-backend.zip
  
     - name: Update Lambda function
       run: |
           aws lambda update-function-code \
             --function-name task-manager \
             --s3-bucket amplify-taskmanager-dev-e5ae4-deployment \
-            --s3-key function.zip
+            --s3-key task-manager-backend.zip
