@@ -81,7 +81,7 @@ def add_task(task, headers):
     }
 
 def update_task(task, headers):
-    task_id = task.get("_id")
+    task_id = task.get("id")
      
     if not task_id:
         return {
@@ -91,7 +91,7 @@ def update_task(task, headers):
         }
 
     try: 
-        task["_id"] = ObjectId(task["_id"])
+        task["id"] = task["id"]
     except Exception as e:
         return {
             "statusCode": 400,
@@ -113,7 +113,7 @@ def update_task(task, headers):
             "headers": headers
         }
 
-    result = tasks_collection.update_one({"_id": task["_id"]}, {"$set": task})
+    result = tasks_collection.update_one({"id": task["id"]}, {"$set": task})
 
     if result.matched_count > 0:
         return {
