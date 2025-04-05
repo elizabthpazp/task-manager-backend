@@ -1,4 +1,3 @@
-```markdown
 ## Instalación
 
 1. **Clonar el repositorio**:
@@ -137,6 +136,3 @@ Puedes desplegar el backend en AWS Lambda siguiendo estos pasos:
 ## Licencia
 
 Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
-```
-
-Este `README.md` incluye las instrucciones completas para instalar, probar, desplegar y contribuir al proyecto, todo estructurado en markdown. ¡Así será mucho más fácil copiarlo y usarlo!
