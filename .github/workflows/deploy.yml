@@ -18,7 +18,7 @@ jobs:
       with:
         aws-access-key-id: AKIAZJGZE3J2IDBOGMGM
         aws-secret-access-key: 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
-        region: us-east-2
+        aws-region: us-east-2
 
     - name: Install dependencies
       run: |
