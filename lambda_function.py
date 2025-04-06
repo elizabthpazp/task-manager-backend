@@ -8,8 +8,6 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
 import hashlib
-import re
-from pymongo.errors import PyMongoError
 
 load_dotenv()
 
@@ -76,11 +74,6 @@ def lambda_handler(event, context):
             "headers": headers
         }
 
-def is_valid_email(email: str) -> bool:
-    """Validates the email format."""
-    pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
-    return re.match(pattern, email) is not None
-
 def register(event, headers):
     try:
         body = json.loads(event["body"])
@@ -90,20 +83,6 @@ def register(event, headers):
         return {
             "statusCode": 400,
             "body": json.dumps({"error": "Email and password are required"}),
-            "headers": headers
-        }
-
-    if not is_valid_email(email):
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"error": "Invalid email format"}),
-            "headers": headers
-        }
-
-    if len(password) < 8:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"error": "Password must be at least 8 characters long"}),
             "headers": headers
         }
 
@@ -123,14 +102,7 @@ def register(event, headers):
         "created_at": datetime.utcnow()
     }
 
-    try:
-        result = users_collection.insert_one(user_data)
-    except PyMongoError as e:
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": f"Database error: {str(e)}"}),
-            "headers": headers
-        }
+    result = users_collection.insert_one(user_data)
 
     expiration = datetime.utcnow() + timedelta(hours=1)
     payload = {
@@ -194,29 +166,15 @@ def get_tasks(headers):
             "body": json.dumps(list(tasks)),
             "headers": headers
         }
-    except PyMongoError as e:
+    except Exception as e:
         return {
             "statusCode": 500,
-            "body": json.dumps({"error": f"Error fetching tasks: {str(e)}"}),
+            "body": json.dumps({"error": "Error fetching tasks"}),
             "headers": headers
         }
 
 def add_task(body, headers):
-    try:
-        if not body.get("title") or not body.get("description"):
-            return {
-                "statusCode": 400,
-                "body": json.dumps({"error": "Title and description are required"}),
-                "headers": headers
-            }
-
-        if body.get("status") not in ["Pending", "Completed"]:
-            return {
-                "statusCode": 400,
-                "body": json.dumps({"error": "Status must be 'Pending' or 'Completed'"}),
-                "headers": headers
-            }
-
+    try: 
         result = tasks_collection.insert_one(body)
         task_id = str(result.inserted_id)
  
@@ -230,10 +188,11 @@ def add_task(body, headers):
             "body": json.dumps(response_task),
             "headers": headers
         }
-    except PyMongoError as e:
+    except Exception as e:
+        print(f"Error adding task: {e}") 
         return {
             "statusCode": 500,
-            "body": json.dumps({"error": f"Error adding task: {str(e)}"}),
+            "body": json.dumps({"error": "Error adding task"}),
             "headers": headers
         }
 
@@ -246,25 +205,18 @@ def update_task(body, headers):
             "headers": headers
         }
 
-    try:
-        result = tasks_collection.update_one({"id": task_id}, {"$set": body})
+    result = tasks_collection.update_one({"id": task_id}, {"$set": body})
 
-        if result.matched_count > 0:
-            return {
-                "statusCode": 200,
-                "body": json.dumps({"message": "Task updated successfully"}),
-                "headers": headers
-            }
-        else:
-            return {
-                "statusCode": 404,
-                "body": json.dumps({"error": "Task not found"}),
-                "headers": headers
-            }
-    except PyMongoError as e:
+    if result.matched_count > 0:
         return {
-            "statusCode": 500,
-            "body": json.dumps({"error": f"Error updating task: {str(e)}"}),
+            "statusCode": 200,
+            "body": json.dumps({"message": "Task updated successfully"}),
+            "headers": headers
+        }
+    else:
+        return {
+            "statusCode": 404,
+            "body": json.dumps({"error": "Task not found"}),
             "headers": headers
         }
 
@@ -277,25 +229,18 @@ def delete_task(body, headers):
             "headers": headers
         }
 
-    try:
-        result = tasks_collection.delete_one({"id": task_id})
+    result = tasks_collection.delete_one({"id": task_id})
 
-        if result.deleted_count > 0:
-            return {
-                "statusCode": 200,
-                "body": json.dumps({"message": "Task deleted successfully"}),
-                "headers": headers
-            }
-        else:
-            return {
-                "statusCode": 404,
-                "body": json.dumps({"error": "Task not found"}),
-                "headers": headers
-            }
-    except PyMongoError as e:
+    if result.deleted_count > 0:
         return {
-            "statusCode": 500,
-            "body": json.dumps({"error": f"Error deleting task: {str(e)}"}),
+            "statusCode": 200,
+            "body": json.dumps({"message": "Task deleted successfully"}),
+            "headers": headers
+        }
+    else:
+        return {
+            "statusCode": 404,
+            "body": json.dumps({"error": "Task not found"}),
             "headers": headers
         }
 
