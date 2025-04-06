@@ -20,10 +20,12 @@ def lambda_handler(event, context):
         "Access-Control-Allow-Headers": "Content-Type, Authorization"
     }
       
-    if event['resource'] == "/login" and http_method == "POST":
-        return login(event, headers)
- 
-    if event['resource'] == "/register" and http_method == "POST":
+    path = event.get("resource") or event.get("path")
+
+    if path == "/login" and http_method == "POST":
+        return login(event, headers) 
+    
+    if path == "/register" and http_method == "POST":
         return register(event, headers)
       
     token = event.get("headers", {}).get("Authorization", "").replace("Bearer ", "")
