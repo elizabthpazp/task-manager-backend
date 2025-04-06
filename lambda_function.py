@@ -22,10 +22,10 @@ def lambda_handler(event, context):
       
     path = event.get("resource") or event.get("path")
 
-    if path == "/login" and http_method == "POST":
+    if "/login" in path and http_method == "POST":
         return login(event, headers) 
     
-    if path == "/register" and http_method == "POST":
+    if "/register" in path and http_method == "POST":
         return register(event, headers)
       
     token = event.get("headers", {}).get("Authorization", "").replace("Bearer ", "")
