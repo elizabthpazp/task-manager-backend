@@ -11,6 +11,7 @@ tasks_collection = db.get_collection("tasks")
 users_collection = db.get_collection("users")
 
 def add_task(task):
+    task["createdAt"] = datetime.utcnow()
     result = tasks_collection.insert_one(task)
     task["id"] = str(result.inserted_id)
     return task
