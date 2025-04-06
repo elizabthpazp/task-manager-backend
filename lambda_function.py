@@ -1,14 +1,20 @@
 import json
 import jwt
+import bcrypt
 from db import tasks_collection
+from pymongo import MongoClient
 from bson import ObjectId
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
- 
+
 load_dotenv()
 
-SECRET_KEY = os.getenv("SECRET_KEY") 
+SECRET_KEY = os.getenv("SECRET_KEY")
+MONGO_URI = os.getenv("MONGO_URI")
+client = MongoClient(MONGO_URI)
+db = client.get_database()
+users_collection = db.users  
 
 def lambda_handler(event, context):
     http_method = event.get("httpMethod")
@@ -17,12 +23,15 @@ def lambda_handler(event, context):
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization"
     }
- 
+     
+    if event['resource'] == "/login" and http_method == "POST":
+        return login(event, headers)
+     
     token = event.get("headers", {}).get("Authorization", "").replace("Bearer ", "")
     if token:
         try: 
             decoded_token = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-            user_id = decoded_token["user_id"] 
+            user_id = decoded_token["user_id"]
         except jwt.ExpiredSignatureError:
             return {
                 "statusCode": 401,
@@ -41,7 +50,7 @@ def lambda_handler(event, context):
             "body": json.dumps({"error": "Authorization token is required"}),
             "headers": headers
         }
-
+ 
     if http_method == "GET":
         return get_tasks(headers)
     elif http_method == "POST":
@@ -62,7 +71,49 @@ def lambda_handler(event, context):
             "body": json.dumps({"error": "Unsupported method"}),
             "headers": headers
         }
+ 
+def login(event, headers):
+    try:
+        body = json.loads(event["body"])
+        email = body["email"]
+        password = body["password"]
+    except KeyError:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Email and password are required"}),
+            "headers": headers
+        }
+  
+    user = users_collection.find_one({"email": email})
 
+    if not user:
+        return {
+            "statusCode": 401,
+            "body": json.dumps({"error": "Invalid credentials"}),
+            "headers": headers
+        }
+ 
+    if not bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
+        return {
+            "statusCode": 401,
+            "body": json.dumps({"error": "Invalid credentials"}),
+            "headers": headers
+        }
+ 
+    expiration = datetime.utcnow() + timedelta(hours=1)   
+    payload = {
+        "user_id": str(user["_id"]),
+        "exp": expiration
+    }
+
+    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+ 
+    return {
+        "statusCode": 200,
+        "body": json.dumps({"token": token}),
+        "headers": headers
+    }
+ 
 def get_tasks(headers):
     tasks = list(tasks_collection.find({}, {"_id": 0}))
     return {
@@ -70,7 +121,7 @@ def get_tasks(headers):
         "body": json.dumps(tasks),
         "headers": headers
     }
-
+ 
 def add_task(task, headers):
     if "title" not in task or not task["title"].strip():
         return {
@@ -109,7 +160,7 @@ def add_task(task, headers):
         "body": json.dumps({"message": "Task added", "task_id": str(result.inserted_id)}),
         "headers": headers
     }
-
+ 
 def update_task(task, headers):
     task_id = task.get("id")
      
@@ -157,7 +208,7 @@ def update_task(task, headers):
             "body": json.dumps({"error": "Task not found"}),
             "headers": headers
         }
-
+ 
 def delete_task(task, headers):
     task_id = task.get("id")
  
