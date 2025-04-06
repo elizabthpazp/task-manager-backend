@@ -1,6 +1,5 @@
 import json
 import jwt
-import bcrypt_lambda as bcrypt
 from db import tasks_collection
 from pymongo import MongoClient
 from bson import ObjectId
@@ -86,7 +85,7 @@ def register(event, headers):
             "body": json.dumps({"error": "Email and password are required"}),
             "headers": headers
         }
-     
+      
     existing_user = users_collection.find_one({"email": email})
     if existing_user:
         return {
@@ -94,16 +93,15 @@ def register(event, headers):
             "body": json.dumps({"error": "Email is already registered"}),
             "headers": headers
         }
-     
-    hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
  
     user_data = {
         "email": email,
-        "password": hashed_password.decode("utf-8"),   
+        "password": password,  
         "created_at": datetime.utcnow()
     }
+ 
     result = users_collection.insert_one(user_data)
-  
+   
     expiration = datetime.utcnow() + timedelta(hours=1)  
     payload = {
         "user_id": str(result.inserted_id), 
