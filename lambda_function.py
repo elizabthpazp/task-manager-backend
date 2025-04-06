@@ -1,16 +1,46 @@
 import json
+import jwt
 from db import tasks_collection
 from bson import ObjectId
 from datetime import datetime
+from dotenv import load_dotenv
+import os
+ 
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY") 
 
 def lambda_handler(event, context):
     http_method = event.get("httpMethod")
-
     headers = {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization"
     }
+ 
+    token = event.get("headers", {}).get("Authorization", "").replace("Bearer ", "")
+    if token:
+        try: 
+            decoded_token = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+            user_id = decoded_token["user_id"] 
+        except jwt.ExpiredSignatureError:
+            return {
+                "statusCode": 401,
+                "body": json.dumps({"error": "Token has expired"}),
+                "headers": headers
+            }
+        except jwt.InvalidTokenError:
+            return {
+                "statusCode": 401,
+                "body": json.dumps({"error": "Invalid token"}),
+                "headers": headers
+            }
+    else:
+        return {
+            "statusCode": 401,
+            "body": json.dumps({"error": "Authorization token is required"}),
+            "headers": headers
+        }
 
     if http_method == "GET":
         return get_tasks(headers)
@@ -41,7 +71,7 @@ def get_tasks(headers):
         "headers": headers
     }
 
-def add_task(task, headers): 
+def add_task(task, headers):
     if "title" not in task or not task["title"].strip():
         return {
             "statusCode": 400,
