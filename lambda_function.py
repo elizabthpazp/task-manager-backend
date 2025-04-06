@@ -1,6 +1,6 @@
 import json
 import jwt
-import bcrypt
+import bcrypt_lambda as bcrypt
 from db import tasks_collection
 from pymongo import MongoClient
 from bson import ObjectId
