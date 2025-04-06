@@ -7,6 +7,7 @@ from bson import ObjectId
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
+import hashlib
 
 load_dotenv()
 
@@ -84,7 +85,7 @@ def register(event, headers):
             "body": json.dumps({"error": "Email and password are required"}),
             "headers": headers
         }
-      
+
     existing_user = users_collection.find_one({"email": email})
     if existing_user:
         return {
@@ -92,22 +93,24 @@ def register(event, headers):
             "body": json.dumps({"error": "Email is already registered"}),
             "headers": headers
         }
- 
+
+    hashed_password = hash_password(password) 
+
     user_data = {
         "email": email,
-        "password": password,  
+        "password": hashed_password,  
         "created_at": datetime.utcnow()
     }
- 
+
     result = users_collection.insert_one(user_data)
-   
-    expiration = datetime.utcnow() + timedelta(hours=1)  
+
+    expiration = datetime.utcnow() + timedelta(hours=1)
     payload = {
-        "user_id": str(result.inserted_id), 
+        "user_id": str(result.inserted_id),
         "exp": expiration
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
-    
+
     return {
         "statusCode": 201,
         "body": json.dumps({"message": "User registered successfully", "token": token}),
@@ -125,7 +128,7 @@ def login(event, headers):
             "body": json.dumps({"error": "Email and password are required"}),
             "headers": headers
         }
-     
+
     user = users_collection.find_one({"email": email})
     if not user:
         return {
@@ -133,21 +136,22 @@ def login(event, headers):
             "body": json.dumps({"error": "Invalid email or password"}),
             "headers": headers
         }
- 
-    if user["password"] != password:   
+
+    hashed_password = hash_password(password)  
+    if user["password"] != hashed_password:  
         return {
             "statusCode": 400,
             "body": json.dumps({"error": "Invalid email or password"}),
             "headers": headers
         }
- 
+
     expiration = datetime.utcnow() + timedelta(hours=1)
     payload = {
-        "user_id": str(user["_id"]), 
+        "user_id": str(user["_id"]),
         "exp": expiration
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
-    
+
     return {
         "statusCode": 200,
         "body": json.dumps({"message": "Login successful", "token": token}),
@@ -239,3 +243,7 @@ def delete_task(body, headers):
             "body": json.dumps({"error": "Task not found"}),
             "headers": headers
         }
+
+def hash_password(password: str) -> str:
+    """Generate hash SHA256 for password"""
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
