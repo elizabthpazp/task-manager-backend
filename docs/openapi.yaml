@@ -8,6 +8,50 @@ servers:
     description: Production server
 
 paths:
+  /login:
+    post:
+      summary: User login
+      description: Logs a user in and returns a JWT token for authentication.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful, token returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Invalid email or password
+        '500':
+          description: Internal Server Error
+
+  /register:
+    post:
+      summary: User registration
+      description: Registers a new user and returns a JWT token for authentication.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully, token returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Invalid request data (e.g., email already registered)
+        '500':
+          description: Internal Server Error
+
   /:
     get:
       summary: Get all tasks
@@ -23,7 +67,9 @@ paths:
                   $ref: '#/components/schemas/Task'
         '500':
           description: Internal Server Error
-
+      security:
+        - BearerAuth: []
+  
     post:
       summary: Create a new task
       description: Adds a new task to the MongoDB database.
@@ -40,6 +86,8 @@ paths:
           description: Invalid request data
         '500':
           description: Internal Server Error
+      security:
+        - BearerAuth: []
 
     put:
       summary: Update a task's status
@@ -57,6 +105,8 @@ paths:
           description: Task not found
         '500':
           description: Internal Server Error
+      security:
+        - BearerAuth: []
 
   /delete:
     post:
@@ -75,6 +125,8 @@ paths:
           description: Task not found
         '500':
           description: Internal Server Error
+      security:
+        - BearerAuth: []
 
 components:
   schemas:
@@ -125,3 +177,39 @@ components:
       properties:
         _id:
           type: string
+
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        token:
+          type: string
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
