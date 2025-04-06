@@ -27,7 +27,7 @@ def lambda_handler(event, context):
     
     if "/register" in path and http_method == "POST":
         return register(event, headers)
-      
+
     token = event.get("headers", {}).get("Authorization", "").replace("Bearer ", "")
     if token:
         try: 
@@ -113,3 +113,84 @@ def register(event, headers):
         "body": json.dumps({"message": "User registered successfully", "token": token}),
         "headers": headers
     }
+
+# Adaptación de las funciones de db.py para integrarlas con las respuestas HTTP
+
+def get_tasks(headers):
+    try:
+        tasks = tasks_collection.find({}, {"_id": 0})
+        return {
+            "statusCode": 200,
+            "body": json.dumps(list(tasks)),
+            "headers": headers
+        }
+    except Exception as e:
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": "Error fetching tasks"}),
+            "headers": headers
+        }
+
+def add_task(body, headers):
+    try:
+        task_id = tasks_collection.insert_one(body).inserted_id
+        body["_id"] = str(task_id)
+        return {
+            "statusCode": 201,
+            "body": json.dumps(body),
+            "headers": headers
+        }
+    except Exception as e:
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": "Error adding task"}),
+            "headers": headers
+        }
+
+def update_task(body, headers):
+    task_id = body.get("_id")
+    if not task_id:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Task ID is required"}),
+            "headers": headers
+        }
+
+    result = tasks_collection.update_one({"_id": ObjectId(task_id)}, {"$set": body})
+
+    if result.matched_count > 0:
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"message": "Task updated successfully"}),
+            "headers": headers
+        }
+    else:
+        return {
+            "statusCode": 404,
+            "body": json.dumps({"error": "Task not found"}),
+            "headers": headers
+        }
+
+def delete_task(body, headers):
+    task_id = body.get("_id")
+    if not task_id:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Task ID is required"}),
+            "headers": headers
+        }
+
+    result = tasks_collection.delete_one({"_id": ObjectId(task_id)})
+
+    if result.deleted_count > 0:
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"message": "Task deleted successfully"}),
+            "headers": headers
+        }
+    else:
+        return {
+            "statusCode": 404,
+            "body": json.dumps({"error": "Task not found"}),
+            "headers": headers
+        }
