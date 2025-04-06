@@ -20,7 +20,7 @@ def lambda_handler(event, context):
         "Access-Control-Allow-Headers": "Content-Type, Authorization"
     }
       
-    path = event.get("resource") or event.get("path")
+    path = event.get("resource") or event.get("path") or ""
 
     if "/login" in path and http_method == "POST":
         return login(event, headers) 
