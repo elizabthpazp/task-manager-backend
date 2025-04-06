@@ -7,7 +7,8 @@ MONGO_URI = os.getenv('MONGO_URI')
 client = MongoClient(MONGO_URI)
 db = client.get_database("task-manager")
 tasks_collection = db.get_collection("tasks")
- 
+users_collection = db.get_collection("users")
+
 def add_task(task):
     task["createdAt"] = datetime.utcnow()
     result = tasks_collection.insert_one(task)

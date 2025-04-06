@@ -1,6 +1,7 @@
 import json
 import jwt
 from db import tasks_collection
+from db import users_collection
 from pymongo import MongoClient
 from bson import ObjectId
 from datetime import datetime, timedelta
@@ -10,10 +11,6 @@ import os
 load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
-MONGO_URI = os.getenv("MONGO_URI")
-client = MongoClient(MONGO_URI)
-db = client.get_database()
-users_collection = db.users  
 
 def lambda_handler(event, context):
     http_method = event.get("httpMethod")
