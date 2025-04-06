@@ -114,6 +114,46 @@ def register(event, headers):
         "headers": headers
     }
 
+def login(event, headers):
+    try:
+        body = json.loads(event["body"])
+        email = body["email"]
+        password = body["password"]
+    except KeyError:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Email and password are required"}),
+            "headers": headers
+        }
+     
+    user = users_collection.find_one({"email": email})
+    if not user:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Invalid email or password"}),
+            "headers": headers
+        }
+ 
+    if user["password"] != password:   
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Invalid email or password"}),
+            "headers": headers
+        }
+ 
+    expiration = datetime.utcnow() + timedelta(hours=1)
+    payload = {
+        "user_id": str(user["_id"]), 
+        "exp": expiration
+    }
+    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+    
+    return {
+        "statusCode": 200,
+        "body": json.dumps({"message": "Login successful", "token": token}),
+        "headers": headers
+    }
+
 def get_tasks(headers):
     try:
         tasks = tasks_collection.find({}, {"_id": 0})
