@@ -130,20 +130,22 @@ def get_tasks(headers):
         }
 
 def add_task(body, headers):
-    try:
+    try: 
         result = tasks_collection.insert_one(body)
-        task_id = result.inserted_id
+        task_id = str(result.inserted_id)
+ 
         response_task = {
-            "id": str(task_id),
+            "id": task_id,  
             **body  
         }
+
         return {
             "statusCode": 201,
             "body": json.dumps(response_task),
             "headers": headers
         }
     except Exception as e:
-        print("Error al agregar tarea:", e) 
+        print(f"Error adding task: {e}") 
         return {
             "statusCode": 500,
             "body": json.dumps({"error": "Error adding task"}),
