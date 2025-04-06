@@ -13,19 +13,18 @@ users_collection = db.get_collection("users")
 def add_task(task):
     task["createdAt"] = datetime.utcnow()
     result = tasks_collection.insert_one(task)
-    return str(result.inserted_id)
+    task["id"] = str(result.inserted_id)
+    return task
 
 def get_tasks():
     return list(tasks_collection.find({}, {"_id": 0}))
 
 def update_task(task):
-    task_id = task.get("_id")
+    task_id = task.get("id")
     if not task_id:
         return {"statusCode": 400, "body": json.dumps({"error": "Task ID is required"})}
  
-    task["_id"] = ObjectId(task["_id"])
-
-    result = tasks_collection.update_one({"_id": task["_id"]}, {"$set": task})
+    result = tasks_collection.update_one({"id": task_id}, {"$set": task})
 
     if result.matched_count > 0:
         return {"statusCode": 200, "body": json.dumps({"message": "Task updated successfully"})}
@@ -33,13 +32,11 @@ def update_task(task):
         return {"statusCode": 404, "body": json.dumps({"error": "Task not found"})}
 
 def delete_task(task):
-    task_id = task.get("_id")
+    task_id = task.get("id")
     if not task_id:
         return {"statusCode": 400, "body": json.dumps({"error": "Task ID is required"})}
 
-    task["_id"] = ObjectId(task["_id"])
-
-    result = tasks_collection.delete_one({"_id": task["_id"]})
+    result = tasks_collection.delete_one({"id": task_id})
 
     if result.deleted_count > 0:
         return {"statusCode": 200, "body": json.dumps({"message": "Task deleted successfully"})}

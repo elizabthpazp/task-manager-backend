@@ -114,8 +114,6 @@ def register(event, headers):
         "headers": headers
     }
 
-# Adaptación de las funciones de db.py para integrarlas con las respuestas HTTP
-
 def get_tasks(headers):
     try:
         tasks = tasks_collection.find({}, {"_id": 0})
@@ -134,7 +132,7 @@ def get_tasks(headers):
 def add_task(body, headers):
     try:
         task_id = tasks_collection.insert_one(body).inserted_id
-        body["_id"] = str(task_id)
+        body["id"] = str(task_id)
         return {
             "statusCode": 201,
             "body": json.dumps(body),
@@ -148,7 +146,7 @@ def add_task(body, headers):
         }
 
 def update_task(body, headers):
-    task_id = body.get("_id")
+    task_id = body.get("id")
     if not task_id:
         return {
             "statusCode": 400,
@@ -156,7 +154,7 @@ def update_task(body, headers):
             "headers": headers
         }
 
-    result = tasks_collection.update_one({"_id": ObjectId(task_id)}, {"$set": body})
+    result = tasks_collection.update_one({"id": task_id}, {"$set": body})
 
     if result.matched_count > 0:
         return {
@@ -172,7 +170,7 @@ def update_task(body, headers):
         }
 
 def delete_task(body, headers):
-    task_id = body.get("_id")
+    task_id = body.get("id")
     if not task_id:
         return {
             "statusCode": 400,
@@ -180,7 +178,7 @@ def delete_task(body, headers):
             "headers": headers
         }
 
-    result = tasks_collection.delete_one({"_id": ObjectId(task_id)})
+    result = tasks_collection.delete_one({"id": task_id})
 
     if result.deleted_count > 0:
         return {
